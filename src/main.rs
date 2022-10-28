@@ -9,7 +9,7 @@ fn main() {
     println!("!!! RED ALERT !!!");
 
     let mut board = Board::new(10, 10);
-    let mut boat  = Boat::new(0, 0, 1, 3);
+    let mut boat   = Boat::new(0, 0, 1, 3);
 
     // dbg!(boat);
     
@@ -27,7 +27,7 @@ fn user_place_boat(board : &mut Board, boat : &mut Boat) {
         (&mut x, "X", (board.x_len() - boat.x_len())),
         (&mut y, "Y", (board.y_len() - boat.y_len())),
     ] {
-        println!("Please, provide an {pos_name} position in [0, {}]:", max_pos);
+        println!("Please, provide a {pos_name} position in [0, {}]:", max_pos);
         loop {
             let mut input = String::new();
 
@@ -54,6 +54,6 @@ fn user_place_boat(board : &mut Board, boat : &mut Boat) {
 
     boat.set_x(x);
     boat.set_y(y);
+    board.place_boat(boat).unwrap_or_default();
     boat.hit(x, y+1);
-    // board.place_boat(&mut boat);
 }

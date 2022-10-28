@@ -1,30 +1,33 @@
 use super::hittable::Hittable;
 use super::hidable::Hidable;
-// use super::boat::Boat;
+use super::boat::BoatPiece;
+
+use std::rc::Rc;
+use std::cell::RefCell;
 
 #[derive(Debug)]
 pub struct Cell {
-    x : u32,
-    y : u32,
+    // x : u32,
+    // y : u32,
     is_hidden : bool,
     is_hit : bool,
-    // boat : Option<&'a mut Boat>,
+    boat_piece : Option<Rc<RefCell<BoatPiece>>>,
 }
 
 impl Cell {
-    pub fn new(x : u32, y : u32) -> Self {
+    pub fn new(/*x : u32, y : u32*/) -> Self {
         Self {
-            x : x,
-            y : y,
+            // x : x,
+            // y : y,
             is_hidden : true,
             is_hit : false,
-            // boat : Option::None,
+            boat_piece : Option::None,
         }
     }
 
-    // pub fn set_boat(&mut self, boat: &'a mut Boat) -> () {
-    //     self.boat = Option::Some(boat);
-    // }
+    pub fn set_boat_piece(&mut self, boat_piece: Rc<RefCell<BoatPiece>>) -> () {
+        self.boat_piece = Option::Some(boat_piece);
+    }
 }
 
 impl Hidable for Cell {

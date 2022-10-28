@@ -1,7 +1,10 @@
 use super::hittable::Hittable;
 
+use std::rc::Rc;
+use std::cell::RefCell;
+
 #[derive(Debug)]
-struct BoatPiece {
+pub struct BoatPiece {
     x : u32,
     y : u32,
     is_hit : bool,
@@ -45,7 +48,7 @@ pub struct Boat {
     y : u32,
     x_len : u32,
     y_len : u32,
-    pieces : Vec<BoatPiece>,
+    pieces : Vec<Rc<RefCell<BoatPiece>>>,
 }
 
 impl Boat {
@@ -60,7 +63,7 @@ impl Boat {
 
         for piece_x in 0..x_len {
             for piece_y in 0..y_len {
-                res.pieces.push(BoatPiece::new(piece_x, piece_y));
+                res.pieces.push(Rc::new(RefCell::new(BoatPiece::new(piece_x, piece_y))));
             }
         }
 
@@ -72,23 +75,27 @@ impl Boat {
     }
 
     pub fn hit(&mut self, x : u32, y : u32) -> bool {
-        if self.target(x, y) {
-            let index = self.coordinates_to_index(x, y).unwrap();
-            self.pieces[index].hit();
-            true
+        if let Ok(index) = self.coordinates_to_index(x, y) {
+            self.pieces[index].borrow_mut().hit();
+            return true;
         } else {
-            false
+            return false;
         }
     }
 
     pub fn remaining_intact_pieces(&self) -> u32 {
         let mut remaining : u32 = 0;
         for piece in &self.pieces {
-            if piece.is_hit() {
+            if piece.borrow().is_hit() {
                 remaining += 1;
             }
         }
         remaining
+    }
+
+    pub fn get_boat_piece_rc(&self, x : u32, y : u32) -> Result<Rc<RefCell<BoatPiece>>, ()> {
+        let index = self.coordinates_to_index(x, y)?;
+        Ok( Rc::clone(&(self.pieces[index])) )
     }
 
     pub fn x(&self) -> u32 {
@@ -118,10 +125,9 @@ impl Boat {
     }
 
     fn coordinates_to_index(&self, x : u32, y : u32) -> Result<usize, ()> {
-        if self.target(x, y) {
-            Ok( (((x - self.x) * self.x_len) + (y - self.y)) as usize )
-        } else {
-            Err(())
+        if ! self.target(x, y) {
+            return Err(());
         }
+        Ok( (((x - self.x) * self.x_len) + (y - self.y)) as usize )
     }
 }
