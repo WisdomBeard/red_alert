@@ -47,6 +47,9 @@ impl Hidable for Cell {
 impl Hittable for Cell {
     fn hit(&mut self) -> () {
         self.is_hit = true;
+        if let Some(boat_piece_rc) = &self.boat_piece {
+            boat_piece_rc.borrow_mut().hit();
+        }
     }
 
     fn repair(&mut self) -> () {

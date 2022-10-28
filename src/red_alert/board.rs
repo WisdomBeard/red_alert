@@ -1,8 +1,6 @@
 use super::cell::Cell;
 use super::boat::Boat;
-
-// use std::rc::Rc;
-// use std::cell::RefCell;
+use super::hittable::Hittable;
 
 #[derive(Debug)]
 pub struct Board {
@@ -26,12 +24,12 @@ impl Board {
     }
 
     pub fn x_len(&self) -> u32{
-        self.cells.len().try_into().unwrap()
+        self.cells.len() as u32
     }
 
     pub fn y_len(&self) -> u32 {
         match self.cells.get(0) {
-            Some(row) => row.len().try_into().unwrap(),
+            Some(row) => row.len() as u32,
             _ => 0,
         }
     }
@@ -47,5 +45,14 @@ impl Board {
             }
         }
         Ok(())
+    }
+
+    pub fn hit(&mut self, x : u32, y : u32) -> bool {
+        if x < self.x_len() && y < self.y_len() {
+            self.cells[x as usize][y as usize].hit();
+            return true;
+        } else {
+            return false;
+        }
     }
 }

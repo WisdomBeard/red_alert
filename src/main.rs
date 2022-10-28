@@ -11,9 +11,9 @@ fn main() {
     let mut board = Board::new(10, 10);
     let mut boat   = Boat::new(0, 0, 1, 3);
 
-    // dbg!(boat);
-    
     user_place_boat(&mut board, &mut boat);
+
+    board.hit(boat.x(), boat.y());
 
     dbg!(board);
     dbg!(boat);
@@ -55,5 +55,4 @@ fn user_place_boat(board : &mut Board, boat : &mut Boat) {
     boat.set_x(x);
     boat.set_y(y);
     board.place_boat(boat).unwrap_or_default();
-    boat.hit(x, y+1);
 }
