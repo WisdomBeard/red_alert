@@ -3,6 +3,8 @@ use super::hittable::Hittable;
 use std::rc::Rc;
 use std::cell::RefCell;
 
+/* -------------- BoatPiece -------------- */
+
 #[derive(Debug)]
 pub struct BoatPiece {
     x : u32,
@@ -42,6 +44,8 @@ impl Hittable for BoatPiece {
     }
 }
 
+/* -------------- Boat -------------- */
+
 #[derive(Debug)]
 pub struct Boat {
     x : u32,
@@ -52,10 +56,10 @@ pub struct Boat {
 }
 
 impl Boat {
-    pub fn new(x : u32, y : u32, x_len : u32, y_len : u32) -> Self {
+    pub fn new(x_len : u32, y_len : u32) -> Self {
         let mut res = Self {
-            x : x,
-            y : y,
+            x : 0,
+            y : 0,
             x_len : x_len,
             y_len : y_len,
             pieces : Vec::new(),
@@ -98,6 +102,10 @@ impl Boat {
         Ok( Rc::clone(&(self.pieces[index])) )
     }
 
+    pub fn get_n_pieces(&self) -> u32 {
+        self.x_len * self.y_len
+    }
+
     pub fn x(&self) -> u32 {
         self.x
     }
@@ -129,5 +137,16 @@ impl Boat {
             return Err(());
         }
         Ok( (((x - self.x) * self.x_len) + (y - self.y)) as usize )
+    }
+}
+
+impl Clone for Boat {
+    fn clone(&self) -> Self {
+        Self::new(self.x_len, self.y_len)
+    }
+
+    fn clone_from(&mut self, source: &Self) {
+        self.x_len = source.x_len;
+        self.y_len = source.y_len;
     }
 }

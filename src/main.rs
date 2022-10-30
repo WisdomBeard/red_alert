@@ -1,5 +1,6 @@
 use std::io;
 
+use crate::red_alert::RedAlert;
 use crate::red_alert::board::Board;
 use crate::red_alert::boat::Boat;
 
@@ -8,18 +9,26 @@ pub mod red_alert;
 fn main() {
     println!("!!! RED ALERT !!!");
 
-    let mut board = Board::new(10, 10);
-    let mut boat   = Boat::new(0, 0, 1, 3);
+    let mut game = RedAlert::new(10, 10).unwrap();
 
-    user_place_boat(&mut board, &mut boat);
+    game.add_player("Renaud");
+    game.add_player("Aline");
 
-    board.hit(boat.x(), boat.y());
+    dbg!(game);
 
-    dbg!(board);
-    dbg!(boat);
+    // let (x, y) = user_place_boat(&mut board, &mut boat);
+    // place_boat(&mut board, &mut boat, x, y);
+
+    // board.hit(boat.x(), boat.y());
+
+    // let test = 1..;
+    // dbg!(test);
+
+    // dbg!(board);
+    // dbg!(boat);
 }
 
-fn user_place_boat(board : &mut Board, boat : &mut Boat) {
+fn user_place_boat(board : &mut Board, boat : &mut Boat) -> (u32, u32) {
     let mut x : u32 = 0;
     let mut y : u32 = 0;
     
@@ -52,6 +61,12 @@ fn user_place_boat(board : &mut Board, boat : &mut Boat) {
         }
     }
 
+    (x, y)
+}
+
+/* -------------- main functions -------------- */
+
+fn place_boat(board : &mut Board, boat : &mut Boat, x : u32, y : u32) {
     boat.set_x(x);
     boat.set_y(y);
     board.place_boat(boat).unwrap_or_default();
