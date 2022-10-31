@@ -9,32 +9,33 @@ pub mod red_alert;
 fn main() {
     println!("!!! RED ALERT !!!");
 
-    let mut game = RedAlert::new(10, 10).unwrap();
+    let board_x_len = 10u32;
+    let board_y_len = 10u32;
 
-    game.add_player("Renaud");
-    game.add_player("Aline");
+    let mut game = RedAlert::new(board_x_len, board_y_len).unwrap();
 
-    dbg!(game);
+    let izuku   = game.add_player("Izuku");
+    let katsuki = game.add_player("Katsuki");
 
-    // let (x, y) = user_place_boat(&mut board, &mut boat);
-    // place_boat(&mut board, &mut boat, x, y);
+    dbg!(game.get_player_board(izuku));
+    // dbg!(game);
+
+    // let (x, y) = user_place_boat(board_x_len, board_y_len, &mut boat);
+    // game.place_boat(izuku, &mut boat, x, y);
 
     // board.hit(boat.x(), boat.y());
-
-    // let test = 1..;
-    // dbg!(test);
 
     // dbg!(board);
     // dbg!(boat);
 }
 
-fn user_place_boat(board : &mut Board, boat : &mut Boat) -> (u32, u32) {
+fn user_place_boat(board_x_len : u32, board_y_len : u32, boat : &mut Boat) -> (u32, u32) {
     let mut x : u32 = 0;
     let mut y : u32 = 0;
     
     for (pos, pos_name, max_pos) in [
-        (&mut x, "X", (board.x_len() - boat.x_len())),
-        (&mut y, "Y", (board.y_len() - boat.y_len())),
+        (&mut x, "X", (board_x_len - boat.x_len())),
+        (&mut y, "Y", (board_y_len - boat.y_len())),
     ] {
         println!("Please, provide a {pos_name} position in [0, {}]:", max_pos);
         loop {
@@ -62,12 +63,4 @@ fn user_place_boat(board : &mut Board, boat : &mut Boat) -> (u32, u32) {
     }
 
     (x, y)
-}
-
-/* -------------- main functions -------------- */
-
-fn place_boat(board : &mut Board, boat : &mut Boat, x : u32, y : u32) {
-    boat.set_x(x);
-    boat.set_y(y);
-    board.place_boat(boat).unwrap_or_default();
 }

@@ -7,11 +7,13 @@ pub mod player;
 
 use std::fmt;
 use std::vec::Vec;
+use std::collections::HashMap;
 use std::ops::RangeFrom;
 use uuid::Uuid;
 
 use crate::red_alert::board::Board;
 use crate::red_alert::boat::Boat;
+use crate::red_alert::player::Player;
 
 /* -------------- Contants -------------- */
 
@@ -31,34 +33,13 @@ impl fmt::Display for InvalidGame {
     }
 }
 
-/* -------------- Player -------------- */
-
-#[derive(Debug)]
-pub struct Player {
-    name : String,
-    id : Uuid,
-    board : Board,
-    boats : Vec<Boat>,
-}
-
-impl Player {
-    pub fn new(name : &str, board : Board, boats : Vec<Boat>) -> Self {
-        Self {
-            name  : name.to_string(),
-            id    : Uuid::new_v4(),
-            board : board,
-            boats : boats,
-        }
-    }
-}
-
 /* -------------- RedAlert -------------- */
 
 #[derive(Debug)]
 pub struct RedAlert {
     board_x_len : u32,
     board_y_len : u32,
-    players : Vec<Player>,
+    players : HashMap<Uuid, Player>,
 }
 
 impl RedAlert {
@@ -73,27 +54,53 @@ impl RedAlert {
         Ok(Self {
             board_x_len : board_x_len,
             board_y_len : board_y_len,
-            players : vec![],
+            players : HashMap::default(),
         })
     }
 
-    pub fn add_player(&mut self, name : &str) {
-        self.players.push(
-            Player::new(
-                name,
-                Board::new(
-                    self.board_x_len,
-                    self.board_y_len
-                ),
+    pub fn add_player(&mut self, name : &str) -> Uuid {
+        let player = Player::new(
+            name,
+            Board::new(
+                self.board_x_len,
+                self.board_y_len
+            ),
+            boats_vec_to_map(
                 create_boats(
                     get_n_boat_pieces_per_player(
                         self.board_x_len,
                         self.board_y_len
                     )
-                ),
-            )
+                )
+            ),
         );
+        let player_id = player.id();
+        self.players.insert(player.id(), player);
+        player_id
     }
+
+    pub fn place_boat(&mut self, player_id : Uuid, boat_id : Uuid, x : u32, y : u32) -> Result<(), String> {
+        if let Some(player) = self.players.get_mut(&player_id) {
+            return player.place_boat(boat_id, x, y);
+        }
+        Err(String::from("Unkown player"))
+    }
+
+    pub fn get_player_board(&self, player_id : Uuid) -> Option<&Board> {
+        if let Some(player) = self.players.get(&player_id) {
+            return Some(player.board())
+        }
+        None
+    }
+}
+
+fn boats_vec_to_map(mut boats : Vec<Boat>) -> HashMap<Uuid, Boat> {
+    let mut map : HashMap<Uuid, Boat> = HashMap::new();
+    while boats.is_empty() {
+        let boat = boats.pop().unwrap();
+        map.insert(boat.id(), boat);
+    }
+    map
 }
 
 fn get_n_boat_pieces_per_player(board_x_len : u32, board_y_len : u32) -> u32 {
@@ -248,11 +255,5 @@ fn user_place_boat(board : &mut Board, boat : &mut Boat) {
     }
 
     place_boat(board, boat, x, y);
-}
-
-fn place_boat(board : &mut Board, boat : &mut Boat, x : u32, y : u32) {
-    boat.set_x(x);
-    boat.set_y(y);
-    board.place_boat(boat).unwrap_or_default();
 }
 */

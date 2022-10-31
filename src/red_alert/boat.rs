@@ -2,6 +2,7 @@ use super::hittable::Hittable;
 
 use std::rc::Rc;
 use std::cell::RefCell;
+use uuid::Uuid;
 
 /* -------------- BoatPiece -------------- */
 
@@ -48,21 +49,25 @@ impl Hittable for BoatPiece {
 
 #[derive(Debug)]
 pub struct Boat {
+    id : Uuid,
     x : u32,
     y : u32,
     x_len : u32,
     y_len : u32,
     pieces : Vec<Rc<RefCell<BoatPiece>>>,
+    is_placed : bool,
 }
 
 impl Boat {
     pub fn new(x_len : u32, y_len : u32) -> Self {
         let mut res = Self {
+            id : Uuid::new_v4(),
             x : 0,
             y : 0,
             x_len : x_len,
             y_len : y_len,
             pieces : Vec::new(),
+            is_placed : false,
         };
 
         for piece_x in 0..x_len {
@@ -106,6 +111,10 @@ impl Boat {
         self.x_len * self.y_len
     }
 
+    pub fn id(&self) -> Uuid {
+        self.id
+    }
+
     pub fn x(&self) -> u32 {
         self.x
     }
@@ -130,6 +139,10 @@ impl Boat {
 
     pub fn y_len(&self) -> u32 {
         self.y_len
+    }
+
+    pub fn place(&mut self) {
+        self.is_placed = true;
     }
 
     fn coordinates_to_index(&self, x : u32, y : u32) -> Result<usize, ()> {

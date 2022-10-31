@@ -44,6 +44,7 @@ impl Board {
                 self.cells[x as usize][y as usize].set_boat_piece(boat.get_boat_piece_rc(x, y)?);
             }
         }
+        boat.place();
         Ok(())
     }
 
