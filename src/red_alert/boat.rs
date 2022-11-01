@@ -2,6 +2,7 @@ use super::hittable::Hittable;
 
 use std::rc::Rc;
 use std::cell::RefCell;
+use std::fmt;
 use uuid::Uuid;
 
 /* -------------- BoatPiece -------------- */
@@ -161,5 +162,11 @@ impl Clone for Boat {
     fn clone_from(&mut self, source: &Self) {
         self.x_len = source.x_len;
         self.y_len = source.y_len;
+    }
+}
+
+impl fmt::Display for Boat {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}x{} ({})", self.x, self.y, self.id)
     }
 }

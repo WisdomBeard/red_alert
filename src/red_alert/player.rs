@@ -3,11 +3,11 @@ use crate::red_alert::boat::Boat;
 
 use uuid::Uuid;
 use std::collections::HashMap;
+use std::fmt;
 
 #[derive(Debug)]
 pub struct Player {
     name : String,
-    id : Uuid,
     board : Board,
     boats : HashMap<Uuid, Boat>,
 }
@@ -16,14 +16,13 @@ impl Player {
     pub fn new(name : &str, board : Board, boats : HashMap<Uuid, Boat>) -> Self {
         Self {
             name  : name.to_string(),
-            id    : Uuid::new_v4(),
             board : board,
             boats : boats,
         }
     }
 
-    pub fn id(&self) -> Uuid {
-        self.id
+    pub fn name(&self) -> &String {
+        &self.name
     }
 
     pub fn board(&self) -> &Board {
@@ -62,5 +61,11 @@ impl Player {
             .or(Err(format!("Failed to place the boat on {}x{}", x, y)))?;
 
         Ok(())
+    }
+}
+
+impl fmt::Display for Player {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.name)
     }
 }

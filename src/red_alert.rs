@@ -39,7 +39,7 @@ impl fmt::Display for InvalidGame {
 pub struct RedAlert {
     board_x_len : u32,
     board_y_len : u32,
-    players : HashMap<Uuid, Player>,
+    players : HashMap<String, Player>,
 }
 
 impl RedAlert {
@@ -58,9 +58,14 @@ impl RedAlert {
         })
     }
 
-    pub fn add_player(&mut self, name : &str) -> Uuid {
+    pub fn add_player(&mut self, name : &str) -> Result<(),()> {
+        let name = String::from(name);
+        if self.players.contains_key(&name) {
+            return Err(());
+        }
+
         let player = Player::new(
-            name,
+            &name,
             Board::new(
                 self.board_x_len,
                 self.board_y_len
@@ -74,27 +79,31 @@ impl RedAlert {
                 )
             ),
         );
-        let player_id = player.id();
-        self.players.insert(player.id(), player);
-        player_id
+
+        self.players.insert(player.name().clone(), player);
+
+        Ok(())
     }
 
-    pub fn place_boat(&mut self, player_id : Uuid, boat_id : Uuid, x : u32, y : u32) -> Result<(), String> {
-        if let Some(player) = self.players.get_mut(&player_id) {
+    pub fn place_boat(&mut self, player_name : &str, boat_id : Uuid, x : u32, y : u32) -> Result<(), String> {
+        let player_name = String::from(player_name);
+        if let Some(player) = self.players.get_mut(&player_name) {
             return player.place_boat(boat_id, x, y);
         }
         Err(String::from("Unkown player"))
     }
 
-    pub fn get_player_board(&self, player_id : Uuid) -> Option<&Board> {
-        if let Some(player) = self.players.get(&player_id) {
+    pub fn get_player_board(&self, player_name : &str) -> Option<&Board> {
+        let player_name = String::from(player_name);
+        if let Some(player) = self.players.get(&player_name) {
             return Some(player.board())
         }
         None
     }
 
-    pub fn get_player_boats(&self, player_id : Uuid) -> Option<&HashMap<Uuid, Boat>> {
-        if let Some(player) = self.players.get(&player_id) {
+    pub fn get_player_boats(&self, player_name : &str) -> Option<&HashMap<Uuid, Boat>> {
+        let player_name = String::from(player_name);
+        if let Some(player) = self.players.get(&player_name) {
             return Some(player.boats())
         }
         None
