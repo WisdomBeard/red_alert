@@ -92,11 +92,18 @@ impl RedAlert {
         }
         None
     }
+
+    pub fn get_player_boats(&self, player_id : Uuid) -> Option<&HashMap<Uuid, Boat>> {
+        if let Some(player) = self.players.get(&player_id) {
+            return Some(player.boats())
+        }
+        None
+    }
 }
 
 fn boats_vec_to_map(mut boats : Vec<Boat>) -> HashMap<Uuid, Boat> {
     let mut map : HashMap<Uuid, Boat> = HashMap::new();
-    while boats.is_empty() {
+    while ! boats.is_empty() {
         let boat = boats.pop().unwrap();
         map.insert(boat.id(), boat);
     }
@@ -104,7 +111,7 @@ fn boats_vec_to_map(mut boats : Vec<Boat>) -> HashMap<Uuid, Boat> {
 }
 
 fn get_n_boat_pieces_per_player(board_x_len : u32, board_y_len : u32) -> u32 {
-    (board_x_len + board_y_len) / 5
+    (board_x_len * board_y_len) / 5
 }
 
 fn create_boats(n_pieces : u32) -> Vec<Boat> {
@@ -130,7 +137,7 @@ fn create_boats(n_pieces : u32) -> Vec<Boat> {
 
     // First, let's give as much completes sets as possible
     for _ in 0..(n_pieces / complete_set_size) {
-        boats.clone_from_slice(&complete_set[1..]);
+        boats.append(&mut complete_set[1..].to_vec());
     }
 
     // Remaining pieces

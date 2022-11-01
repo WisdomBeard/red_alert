@@ -18,10 +18,13 @@ fn main() {
     let katsuki = game.add_player("Katsuki");
 
     dbg!(game.get_player_board(izuku));
+    dbg!(game.get_player_boats(katsuki));
     // dbg!(game);
 
-    // let (x, y) = user_place_boat(board_x_len, board_y_len, &mut boat);
-    // game.place_boat(izuku, &mut boat, x, y);
+    let (x, y) = user_get_coordinates(board_x_len, board_y_len);
+    let &boat_id = game.get_player_boats(izuku).unwrap().keys().last().unwrap();
+    game.place_boat(izuku, boat_id, x, y).unwrap();
+    dbg!(game.get_player_boats(izuku));
 
     // board.hit(boat.x(), boat.y());
 
@@ -29,13 +32,13 @@ fn main() {
     // dbg!(boat);
 }
 
-fn user_place_boat(board_x_len : u32, board_y_len : u32, boat : &mut Boat) -> (u32, u32) {
+fn user_get_coordinates(board_x_len : u32, board_y_len : u32) -> (u32, u32) {
     let mut x : u32 = 0;
     let mut y : u32 = 0;
     
     for (pos, pos_name, max_pos) in [
-        (&mut x, "X", (board_x_len - boat.x_len())),
-        (&mut y, "Y", (board_y_len - boat.y_len())),
+        (&mut x, "X", (board_x_len - 1)),
+        (&mut y, "Y", (board_y_len - 1)),
     ] {
         println!("Please, provide a {pos_name} position in [0, {}]:", max_pos);
         loop {

@@ -39,6 +39,11 @@ impl Board {
         let x2 = x1 + boat.x_len();
         let y1 = boat.y();
         let y2 = y1 + boat.y_len();
+
+        if x2 >= self.x_len() || y2 >= self.y_len() {
+            return Err(());
+        }
+
         for x in x1..x2 {
             for y in y1..y2 {
                 self.cells[x as usize][y as usize].set_boat_piece(boat.get_boat_piece_rc(x, y)?);

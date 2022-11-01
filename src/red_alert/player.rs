@@ -34,8 +34,20 @@ impl Player {
         &mut self.board
     }
 
+    pub fn boat(&self, boat_id : &Uuid) -> Option<&Boat> {
+        self.boats.get(boat_id)
+    }
+
     pub fn mut_boat(&mut self, boat_id : &Uuid) -> Option<&mut Boat> {
         self.boats.get_mut(boat_id)
+    }
+
+    pub fn boats(&self) -> &HashMap<Uuid, Boat> {
+        &self.boats
+    }
+
+    pub fn mut_boats(&mut self) -> &mut HashMap<Uuid, Boat> {
+        &mut self.boats
     }
 
     pub fn place_boat(&mut self, boat_id : Uuid, x : u32, y : u32) -> Result<(), String> {
