@@ -50,14 +50,12 @@ impl Player {
     }
 
     pub fn place_boat(&mut self, boat_id : Uuid, x : u32, y : u32) -> Result<(), String> {
-        {
-            let boat = self.boats.get_mut(&boat_id).ok_or_else(||"Unknown boat".to_string())?;
+        let boat = self.boats.get_mut(&boat_id).ok_or_else(||"Unknown boat".to_string())?;
 
-            boat.set_x(x);
-            boat.set_y(y);
-        }
+        boat.set_x(x);
+        boat.set_y(y);
 
-        self.board.place_boat(self.boats.get_mut(&boat_id).ok_or_else(||"Unknown boat".to_string())?)
+        self.board.place_boat(boat)
             .or(Err(format!("Failed to place the boat on {}x{}", x, y)))?;
 
         Ok(())
