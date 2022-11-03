@@ -20,16 +20,19 @@ fn main() {
     }
 
     for player_name in player_names.iter() {
-        let player_board = game.get_player_board(&player_name).unwrap();
         let player_boats = game.get_player_boats(&player_name).unwrap();
 
-        let mut boat_ids : Vec<(Uuid,String,String)> = vec![];
+        let mut boat_ids : Vec<(Uuid,String)> = vec![];
         for boat in player_boats.values() {
-            boat_ids.push((boat.id().clone(), format!("{}", player_board), format!("{}", boat)));
+            boat_ids.push((boat.id().clone(), format!("{}", boat)));
         }
 
-        for (boat_id, board_str, boat_str) in boat_ids {
-            println!("{}\nPlease, {}, place the following boat:\n{}", &board_str, player_name, &boat_str);
+        for (boat_id, boat_str) in boat_ids {
+            println!("{}\nPlease, {}, place the following boat:\n{}",
+                game.get_player_board(&player_name).unwrap(),
+                player_name,
+                &boat_str
+            );
             loop {
                 let (x, y) = user_get_coordinates(board_x_len, board_y_len);
                 match game.place_boat(&player_name, &boat_id, x, y) {

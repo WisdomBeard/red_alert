@@ -1,5 +1,4 @@
 use super::hittable::Hittable;
-use super::hidable::Hidable;
 use super::boat::BoatPiece;
 
 use std::rc::Rc;
@@ -9,7 +8,6 @@ use std::cell::RefCell;
 pub struct Cell {
     // x : u32,
     // y : u32,
-    is_hidden : bool,
     is_hit : bool,
     boat_piece : Option<Rc<RefCell<BoatPiece>>>,
 }
@@ -19,7 +17,6 @@ impl Cell {
         Self {
             // x : x,
             // y : y,
-            is_hidden : true,
             is_hit : false,
             boat_piece : Option::None,
         }
@@ -32,19 +29,14 @@ impl Cell {
     pub fn set_boat_piece(&mut self, boat_piece: Rc<RefCell<BoatPiece>>) -> () {
         self.boat_piece = Option::Some(boat_piece);
     }
-}
 
-impl Hidable for Cell {
-    fn hide(&mut self) -> () {
-        self.is_hidden = true;
-    }
-
-    fn reveal(&mut self) -> () {
-        self.is_hidden = false;
-    }
-
-    fn is_hidden(&self) -> bool {
-        self.is_hidden
+    pub fn to_string(&self, show_boats : bool) -> String {
+        match (&self.is_hit, show_boats, &self.boat_piece) {
+            (false, true, Some(_)) => format!("{}", "⚓"),
+            (true, _, Some(_)) => format!("{}", "🔥"),
+            (true, _, None) => format!("{}", "🌊"),
+            (_, _, _) => format!("{}", "🟦"),
+        }
     }
 }
 

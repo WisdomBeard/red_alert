@@ -2,7 +2,7 @@ use super::cell::Cell;
 use super::boat::Boat;
 use super::hittable::Hittable;
 
-use std::fmt;
+use std::fmt::{self, Debug};
 
 #[derive(Debug)]
 pub struct Board {
@@ -46,8 +46,12 @@ impl Board {
             return Err(());
         }
 
-        for x in x1..x2 {
-            for y in y1..y2 {
+        let x1_extended = if x1 > 0 {x1-1} else {x1};
+        let x2_extended = if x2 < (self.x_len() - 1) {x2+1} else {x2};
+        let y1_extended = if y1 > 0 {y1-1} else {y1};
+        let y2_extended = if y2 < (self.y_len() - 1) {y2+1} else {y2};
+        for x in x1_extended..x2_extended {
+            for y in y1_extended..y2_extended {
                 if self.cells[x as usize][y as usize].get_boat_piece().is_some() {
                     return Err(());
                 }
@@ -75,11 +79,21 @@ impl Board {
 
 impl fmt::Display for Board {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let inter_line = format!("\n│{}│", " ".repeat(self.x_len() as usize));
-        write!(f, "┌{}┐{}\n└{}┘"
-                , "─".repeat(self.x_len() as usize)
-                , inter_line.repeat(self.y_len() as usize)
-                , "─".repeat(self.x_len() as usize)
-        )
+        let mut board_str = String::new();
+        board_str.reserve((2 * self.x_len() as usize + "\n││".len()) * (self.y_len() as usize + "──".len()));
+
+        board_str.push_str(format!("┏{}┐", "─".repeat(2 * self.x_len() as usize)).as_str());
+
+        for y in 0..self.y_len() {
+            board_str.push_str("\n│");
+            for x in 0..self.x_len() {
+                board_str.push_str(self.cells[x as usize][y as usize].to_string(true).as_str());
+            }
+            board_str.push_str("│");
+        }
+        
+        board_str.push_str(format!("\n└{}┘", "─".repeat(2 * self.x_len() as usize)).as_str());
+
+        write!(f, "{}", board_str)
     }
 }
