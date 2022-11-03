@@ -49,7 +49,7 @@ impl Player {
         &mut self.boats
     }
 
-    pub fn place_boat(&mut self, boat_id : Uuid, x : u32, y : u32) -> Result<(), String> {
+    pub fn place_boat(&mut self, boat_id : &Uuid, x : u32, y : u32) -> Result<(), String> {
         let boat = self.boats.get_mut(&boat_id).ok_or_else(||"Unknown boat".to_string())?;
 
         boat.set_x(x);

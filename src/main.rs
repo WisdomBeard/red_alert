@@ -3,6 +3,7 @@ use std::io;
 use crate::red_alert::RedAlert;
 // use crate::red_alert::board::Board;
 // use crate::red_alert::boat::Boat;
+use uuid::Uuid;
 
 pub mod red_alert;
 
@@ -13,15 +14,33 @@ fn main() {
 
     let mut game = RedAlert::new(board_x_len, board_y_len).unwrap();
 
-    let mut playerNames = user_create_players();
-    for playerName in playerNames {
-        game.add_player(&playerName);
+    let player_names = user_create_players();
+    for player_name in player_names.iter() {
+        game.add_player(&player_name);
+    }
+
+    for player_name in player_names.iter() {
+        let player_board = game.get_player_board(&player_name).unwrap();
+        let player_boats = game.get_player_boats(&player_name).unwrap();
+
+        let mut boat_ids : Vec<(Uuid,String,String)> = vec![];
+        for boat in player_boats.values() {
+            boat_ids.push((boat.id().clone(), format!("{}", player_board), format!("{}", boat)));
+        }
+
+        for (boat_id, board_str, boat_str) in boat_ids {
+            println!("{}\nPlease, {}, place the following boat:\n{}", &board_str, player_name, &boat_str);
+            loop {
+                let (x, y) = user_get_coordinates(board_x_len, board_y_len);
+                match game.place_boat(&player_name, &boat_id, x, y) {
+                    Ok(_) => break,
+                    Err(message) => println!("{}", message),
+                }
+            }
+        }
     }
 
     /* PSEUDO CODE
-        foreach user
-            foreach boat
-                user place boat
         foreach user
             print his board
             show other user boards on demand
@@ -102,8 +121,6 @@ fn user_create_players() -> Vec<String> {
 }
 
 fn user_wants_new_player() -> bool {
-    let mut yes_new_player = false;
-
     println!("Do you want to add a new player? (y/n)");
     loop {
         let mut input = String::new();
@@ -113,18 +130,14 @@ fn user_wants_new_player() -> bool {
             .expect("Failed to read line");
 
         match input.trim() {
-            "y" => yes_new_player = true,
-            "n" => yes_new_player = false,
+            "y" => return true,
+            "n" => return false,
             _ => {
                 println!("  (y/n)");
                 continue;
             }
         }
-
-        break;
     }
-
-    yes_new_player
 }
 
 fn user_new_player(players : &mut Vec<String>) {

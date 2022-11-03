@@ -71,8 +71,8 @@ impl Boat {
             is_placed : false,
         };
 
-        for piece_x in 0..x_len {
-            for piece_y in 0..y_len {
+        for piece_y in 0..y_len {
+            for piece_x in 0..x_len {
                 res.pieces.push(Rc::new(RefCell::new(BoatPiece::new(piece_x, piece_y))));
             }
         }
@@ -150,7 +150,7 @@ impl Boat {
         if ! self.target(x, y) {
             return Err(());
         }
-        Ok( (((x - self.x) * self.x_len) + (y - self.y)) as usize )
+        Ok( ((y - self.y) * self.x_len + (x - self.x)) as usize )
     }
 }
 
@@ -167,6 +167,8 @@ impl Clone for Boat {
 
 impl fmt::Display for Boat {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}x{} ({})", self.x, self.y, self.id)
+        let mut boat_str = "X".repeat(self.x_len as usize);
+        boat_str.push('\n');
+        write!(f, "{}", boat_str.repeat(self.y_len as usize))
     }
 }

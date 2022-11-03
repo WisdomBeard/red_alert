@@ -85,7 +85,7 @@ impl RedAlert {
         Ok(())
     }
 
-    pub fn place_boat(&mut self, player_name : &str, boat_id : Uuid, x : u32, y : u32) -> Result<(), String> {
+    pub fn place_boat(&mut self, player_name : &str, boat_id : &Uuid, x : u32, y : u32) -> Result<(), String> {
         let player_name = String::from(player_name);
         if let Some(player) = self.players.get_mut(&player_name) {
             return player.place_boat(boat_id, x, y);

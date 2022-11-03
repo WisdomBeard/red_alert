@@ -2,9 +2,11 @@ use super::cell::Cell;
 use super::boat::Boat;
 use super::hittable::Hittable;
 
+use std::fmt;
+
 #[derive(Debug)]
 pub struct Board {
-    cells : Vec<Vec<Cell>>,
+    pub cells : Vec<Vec<Cell>>,
 }
 
 impl Board {
@@ -40,8 +42,16 @@ impl Board {
         let y1 = boat.y();
         let y2 = y1 + boat.y_len();
 
-        if x2 >= self.x_len() || y2 >= self.y_len() {
+        if x2 > self.x_len() || y2 > self.y_len() {
             return Err(());
+        }
+
+        for x in x1..x2 {
+            for y in y1..y2 {
+                if self.cells[x as usize][y as usize].get_boat_piece().is_some() {
+                    return Err(());
+                }
+            }
         }
 
         for x in x1..x2 {
@@ -60,5 +70,16 @@ impl Board {
         } else {
             return false;
         }
+    }
+}
+
+impl fmt::Display for Board {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let inter_line = format!("\n│{}│", " ".repeat(self.x_len() as usize));
+        write!(f, "┌{}┐{}\n└{}┘"
+                , "─".repeat(self.x_len() as usize)
+                , inter_line.repeat(self.y_len() as usize)
+                , "─".repeat(self.x_len() as usize)
+        )
     }
 }

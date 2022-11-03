@@ -25,6 +25,10 @@ impl Cell {
         }
     }
 
+    pub fn get_boat_piece(&self) -> Option<Rc<RefCell<BoatPiece>>> {
+        self.boat_piece.clone()
+    }
+
     pub fn set_boat_piece(&mut self, boat_piece: Rc<RefCell<BoatPiece>>) -> () {
         self.boat_piece = Option::Some(boat_piece);
     }
