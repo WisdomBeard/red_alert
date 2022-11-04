@@ -80,16 +80,20 @@ impl Board {
 impl fmt::Display for Board {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut board_str = String::new();
-        board_str.reserve((2 * self.x_len() as usize + "\n││".len()) * (self.y_len() as usize + "──".len()));
+        board_str.reserve((2 * self.x_len() as usize + "\n││ 0".len()) * (self.y_len() as usize + "0──".len()));
 
-        board_str.push_str(format!("┏{}┐", "─".repeat(2 * self.x_len() as usize)).as_str());
+        board_str.push(' ');
+        for x in 0..self.x_len() {
+            board_str.push_str(format!(" {}", x%10).as_str());
+        }
+        board_str.push_str(format!("\n┌{}┐", "─".repeat(2 * self.x_len() as usize)).as_str());
 
         for y in 0..self.y_len() {
             board_str.push_str("\n│");
             for x in 0..self.x_len() {
                 board_str.push_str(self.cells[x as usize][y as usize].to_string(true).as_str());
             }
-            board_str.push_str("│");
+            board_str.push_str(format!("│ {}", y%10).as_str());
         }
         
         board_str.push_str(format!("\n└{}┘", "─".repeat(2 * self.x_len() as usize)).as_str());

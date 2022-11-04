@@ -28,7 +28,8 @@ fn main() {
         }
 
         for (boat_id, boat_str) in boat_ids {
-            println!("{}\nPlease, {}, place the following boat:\n{}",
+            println!("{}{}\nPlease, {}, place the following boat:\n{}",
+                "\n".repeat(10),
                 game.get_player_board(&player_name).unwrap(),
                 player_name,
                 &boat_str
