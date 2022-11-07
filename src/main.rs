@@ -16,20 +16,61 @@ fn main() {
 
     let player_names = user_create_players();
     for player_name in player_names.iter() {
-        game.add_player(&player_name);
+        game.add_player(&player_name).unwrap();
     }
 
     for player_name in player_names.iter() {
         let player_boats = game.get_player_boats(&player_name).unwrap();
 
         let mut boat_ids : Vec<(Uuid,String)> = vec![];
+        let mut horizontal_boat_strs : Vec<(u32,String)> = vec![];
+        let mut vertical_boat_strs : Vec<(u32,String)> = vec![];
         for boat in player_boats.values() {
             boat_ids.push((boat.id().clone(), format!("{}", boat)));
+            if boat.x_len() > 1 {
+                horizontal_boat_strs.push((boat.x_len(), format!("{}", boat)))
+            } else {
+                vertical_boat_strs.push((boat.y_len(), format!("{}", boat)))
+            }
         }
 
-        for (boat_id, boat_str) in boat_ids {
-            println!("{}{}\nPlease, {}, place the following boat:\n{}",
-                "\n".repeat(10),
+        // Make space
+
+        println!("{}", "\n".repeat(50));
+
+        // Show all boats
+
+        horizontal_boat_strs.sort_unstable_by(|a,b|{
+            a.0.cmp(&b.0)
+        });
+        vertical_boat_strs.sort_unstable_by(|a,b|{
+            a.0.cmp(&b.0)
+        });
+
+        println!("Your fleet:");
+        for (_, boat_str) in &horizontal_boat_strs {
+            println!("{}", &boat_str);
+        }
+
+        for index in 0..5 {
+            let mut line = String::new();
+            line.reserve(vertical_boat_strs.len() * 2);
+            
+            for (boat_y_len, boat_str) in &vertical_boat_strs {
+                line.push_str(format!(" {}", boat_str.chars().nth(index).unwrap_or(' ')).as_str());
+            }
+            if line.is_empty() {
+                break;
+            }
+
+            println!("{}", &line);
+        }
+
+        // Place boats
+
+        for (boat_id, boat_str) in &boat_ids {
+            // Show board and the boat to place
+            println!("\nYour map:\n{}\nPlease, {}, place the following boat:\n{}",
                 game.get_player_board(&player_name).unwrap(),
                 player_name,
                 &boat_str

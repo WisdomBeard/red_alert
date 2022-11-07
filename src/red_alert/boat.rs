@@ -169,6 +169,6 @@ impl fmt::Display for Boat {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut boat_str = "⚓".repeat(self.x_len as usize);
         boat_str.push('\n');
-        write!(f, "{}", boat_str.repeat(self.y_len as usize))
+        write!(f, "{}", boat_str.repeat(self.y_len as usize).trim())
     }
 }
