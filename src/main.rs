@@ -10,15 +10,19 @@ pub mod red_alert;
 fn main() {
     println!("!!! RED ALERT !!!");
 
+    // Ask for the desired board size
     let (board_x_len, board_y_len) = user_get_board_size();
 
+    // Create a game accordingly
     let mut game = RedAlert::new(board_x_len, board_y_len).unwrap();
 
+    // Create players
     let player_names = user_create_players();
     for player_name in player_names.iter() {
         game.add_player(&player_name).unwrap();
     }
 
+    // For each player : deploy its fleet
     for player_name in player_names.iter() {
         let player_boats = game.get_player_boats(&player_name).unwrap();
 
@@ -52,29 +56,24 @@ fn main() {
             println!("{}", &boat_str);
         }
 
-        for index in 0..5 {
-            let mut line = String::new();
-            line.reserve(vertical_boat_strs.len() * 2);
-            
-            for (boat_y_len, boat_str) in &vertical_boat_strs {
-                line.push_str(format!(" {}", boat_str.chars().nth(index).unwrap_or(' ')).as_str());
-            }
-            if line.is_empty() {
-                break;
-            }
-
-            println!("{}", &line);
-        }
-
         // Place boats
-
+        
         for (boat_id, boat_str) in &boat_ids {
-            // Show board and the boat to place
-            println!("\nYour map:\n{}\nPlease, {}, place the following boat:\n{}",
-                game.get_player_board(&player_name).unwrap(),
+            // Make space
+            clear();
+
+            // Show all boats
+            print_fleet(&game, player_name.as_str());
+
+            // Show board
+            println!("\nYour map:\n{}", game.get_player_board(&player_name).unwrap());
+
+            // Show the boat to place
+            println!("\nPlease, {}, place the following boat:\n{}",
                 player_name,
                 &boat_str
             );
+
             loop {
                 let (x, y) = user_get_coordinates(board_x_len, board_y_len);
                 match game.place_boat(&player_name, &boat_id, x, y) {
@@ -83,6 +82,36 @@ fn main() {
                 }
             }
         }
+
+        // Make space
+        clear();
+
+        // Show board
+        println!("\n{}", game.get_player_board(&player_name).unwrap());
+
+        user_confirm(player_name, "your fleet is now deployed !");
+    }
+
+    // For each player : ask for action
+    for player_name in player_names.iter() {
+        clear();
+        user_confirm(player_name, "are you ready to take actions ?!");
+
+        clear();
+        // Show opponents
+        for opponent_name in player_names.iter() {
+            if opponent_name == player_name {
+                continue
+            }
+
+            println!("\nOur knowledge of {}'s map:\n{}", &opponent_name, game.get_player_board(&opponent_name).unwrap().to_string(false))
+        }
+
+        // Show board
+        println!("\nYour map:\n{}", game.get_player_board(&player_name).unwrap());
+        
+        // clear();
+        user_confirm(player_name, "let's see how they will react...");
     }
 
     /* PSEUDO CODE
@@ -93,25 +122,50 @@ fn main() {
             show impacted board
             check if end of game
     */
+}
 
-    // let izuku   = String::from("Izuku");
-    // let katsuki = String::from("Katsuki");
-    // game.add_player(&izuku);
-    // game.add_player(&katsuki);
+fn print_fleet(game : &RedAlert, player_name : &str) {
+    let player_boats = game.get_player_boats(player_name).unwrap();
 
-    // dbg!(game.get_player_board(&izuku));
-    // dbg!(game.get_player_boats(&katsuki));
-    // dbg!(game);
-/*
-    let (x, y) = user_get_coordinates(board_x_len, board_y_len);
-    let &boat_id = game.get_player_boats(&izuku).unwrap().keys().last().unwrap();
-    game.place_boat(&izuku, boat_id, x, y).unwrap();
-    dbg!(game.get_player_boats(&izuku));
-*/
-    // board.hit(boat.x(), boat.y());
+    let mut horizontal_boat_strs : Vec<(u32,String)> = vec![];
+    let mut vertical_boat_strs : Vec<(u32,String)> = vec![];
+    for boat in player_boats.values() {
+        if boat.x_len() > 1 {
+            horizontal_boat_strs.push((boat.x_len(), format!("{}", boat)))
+        } else {
+            vertical_boat_strs.push((boat.y_len(), format!("{}", boat)))
+        }
+    }
 
-    // dbg!(board);
-    // dbg!(boat);
+    horizontal_boat_strs.sort_unstable_by(|a,b|{
+        b.0.cmp(&a.0)
+    });
+    vertical_boat_strs.sort_unstable_by(|a,b|{
+        b.0.cmp(&a.0)
+    });
+
+    println!("Your fleet:");
+    for (_, boat_str) in &horizontal_boat_strs {
+        println!("{}\n", &boat_str);
+    }
+
+    for index in 0..5 {
+        let mut line = String::new();
+        line.reserve(vertical_boat_strs.len() * 2);
+
+        for (boat_y_len, boat_str) in &vertical_boat_strs {
+            if index < *boat_y_len as usize {
+                line.push_str(format!("{}  ", boat_str.chars().nth(2 * index).unwrap()).as_str());
+            } else {
+                line.push_str("    ");
+            }
+        }
+        if line.is_empty() {
+            break;
+        }
+        
+        println!("{}", &line);
+    }
 }
 
 fn user_get_board_size() -> (u32, u32) {
@@ -185,6 +239,17 @@ fn user_wants_new_player() -> bool {
     }
 }
 
+fn user_confirm(player_name : &str, message : &str) -> String {
+    println!("\n{}, {}", player_name, message);
+
+    let mut input = String::new();
+    io::stdin()
+        .read_line(&mut input)
+        .expect("Failed to read line");
+    
+    input
+}
+
 fn user_new_player(players : &mut Vec<String>) {
     println!("Please, provide a unique player name:");
     loop {
@@ -246,4 +311,38 @@ fn user_get_coordinates(board_x_len : u32, board_y_len : u32) -> (u32, u32) {
     }
 
     (x, y)
+}
+
+fn user_hit(game : &RedAlert, player_name : &str) {
+    let ennemy_name = user_confirm(&player_name, "Who is the ennemy?");
+    loop {
+        if let Some(ennemy_board) = game.get_player_board(&ennemy_name) {
+            println!("Captain, we need coordinates to hit!");
+
+            loop {
+                let (hit_x, hit_y) = user_get_coordinates(game.board_x_len(), game.board_y_len());
+
+                let is_already_hit = ennemy_board.is_hit(hit_x, hit_y).unwrap();
+                if ! is_already_hit {
+                    if ennemy_board.hit(hit_x, hit_y).unwrap() {
+                        println!("BOOM!");
+                    } else {
+                        println!("Shit... it's a miss");
+                    }
+                    break;
+                } else {
+                    println!("  Huh, this spot was already hit...");
+                    continue;
+                }
+            }
+            break;
+        } else {
+            println!("  Sorry, didn't get it. Who?");
+            continue;
+        }
+    }
+}
+
+fn clear() {
+    println!("{}", "\n".repeat(100));
 }
