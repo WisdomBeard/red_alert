@@ -27,8 +27,33 @@ fn main() {
         let player_boats = game.get_player_boats(&player_name).unwrap();
 
         let mut boat_ids : Vec<(Uuid,String)> = vec![];
+        let mut horizontal_boat_strs : Vec<(u32,String)> = vec![];
+        let mut vertical_boat_strs : Vec<(u32,String)> = vec![];
         for boat in player_boats.values() {
             boat_ids.push((boat.id().clone(), format!("{}", boat)));
+            if boat.x_len() > 1 {
+                horizontal_boat_strs.push((boat.x_len(), format!("{}", boat)))
+            } else {
+                vertical_boat_strs.push((boat.y_len(), format!("{}", boat)))
+            }
+        }
+
+        // Make space
+
+        println!("{}", "\n".repeat(50));
+
+        // Show all boats
+
+        horizontal_boat_strs.sort_unstable_by(|a,b|{
+            a.0.cmp(&b.0)
+        });
+        vertical_boat_strs.sort_unstable_by(|a,b|{
+            a.0.cmp(&b.0)
+        });
+
+        println!("Your fleet:");
+        for (_, boat_str) in &horizontal_boat_strs {
+            println!("{}", &boat_str);
         }
 
         // Place boats
