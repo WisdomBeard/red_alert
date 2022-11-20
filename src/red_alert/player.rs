@@ -60,6 +60,17 @@ impl Player {
 
         Ok(())
     }
+
+    pub fn is_alive(&self) -> bool {
+        for (_, boat) in &self.boats {
+            if boat.remaining_intact_pieces() > 0 {
+                return true;
+            }
+        }
+        false
+    }
+
+    // }
 }
 
 impl fmt::Display for Player {

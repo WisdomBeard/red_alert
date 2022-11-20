@@ -67,18 +67,24 @@ impl Board {
         Ok(())
     }
 
-    pub fn hit(&mut self, x : u32, y : u32) -> bool {
+    pub fn hit(&mut self, x : u32, y : u32) -> Result<bool,()> {
         if x < self.x_len() && y < self.y_len() {
             self.cells[x as usize][y as usize].hit();
-            return true;
+            return Ok(self.cells[x as usize][y as usize].get_boat_piece().is_some());
         } else {
-            return false;
+            return Err(());
         }
     }
-}
 
-impl fmt::Display for Board {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    pub fn is_hit(&mut self, x : u32, y : u32) -> Result<bool,()> {
+        if x < self.x_len() && y < self.y_len() {
+            return Ok(self.cells[x as usize][y as usize].is_hit());
+        } else {
+            return Err(());
+        }
+    }
+
+    pub fn to_string(&self, show_boats : bool) -> String {
         let mut board_str = String::new();
         board_str.reserve((2 * self.x_len() as usize + "\n││ 0".len()) * (self.y_len() as usize + "0──".len()));
 
@@ -91,13 +97,19 @@ impl fmt::Display for Board {
         for y in 0..self.y_len() {
             board_str.push_str("\n│");
             for x in 0..self.x_len() {
-                board_str.push_str(self.cells[x as usize][y as usize].to_string(true).as_str());
+                board_str.push_str(self.cells[x as usize][y as usize].to_string(show_boats).as_str());
             }
             board_str.push_str(format!("│ {}", y%10).as_str());
         }
         
         board_str.push_str(format!("\n└{}┘", "─".repeat(2 * self.x_len() as usize)).as_str());
 
-        write!(f, "{}", board_str)
+        board_str
+    }
+}
+
+impl fmt::Display for Board {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.to_string(true))
     }
 }

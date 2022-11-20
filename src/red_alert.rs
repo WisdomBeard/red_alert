@@ -57,6 +57,14 @@ impl RedAlert {
         })
     }
 
+    pub fn board_x_len(&self) -> u32 {
+        self.board_x_len
+    }
+
+    pub fn board_y_len(&self) -> u32 {
+        self.board_y_len
+    }
+
     pub fn add_player(&mut self, name : &str) -> Result<(),()> {
         let name = String::from(name);
         if self.players.contains_key(&name) {
@@ -100,12 +108,33 @@ impl RedAlert {
         None
     }
 
+    pub fn get_player_mut_board(&mut self, player_name : &str) -> Option<&mut Board> {
+        let player_name = String::from(player_name);
+        if let Some(player) = self.players.get_mut(&player_name) {
+            return Some(player.mut_board())
+        }
+        None
+    }
+
     pub fn get_player_boats(&self, player_name : &str) -> Option<&HashMap<Uuid, Boat>> {
         let player_name = String::from(player_name);
         if let Some(player) = self.players.get(&player_name) {
             return Some(player.boats())
         }
         None
+    }
+
+    pub fn get_winner(&self) -> Option< &Player > {
+        let mut result : Option< &Player > = None;
+        for (_, player) in &self.players {
+            if player.is_alive() {
+                if result.is_some() {
+                    return None;
+                }
+                result = Some(player);
+            }
+        }
+        result
     }
 }
 
@@ -221,54 +250,3 @@ fn create_boats(n_pieces : u32) -> Vec<Boat> {
 
     boats
 }
-
-/*
-fn main() {
-
-    let mut board = Board::new(10, 10);
-    let mut boat   = Boat::new(1, 3);
-
-    user_place_boat(&mut board, &mut boat);
-
-    board.hit(boat.x(), boat.y());
-
-    dbg!(board);
-    dbg!(boat);
-}
-
-fn user_place_boat(board : &mut Board, boat : &mut Boat) {
-    let mut x : u32 = 0;
-    let mut y : u32 = 0;
-    
-    for (pos, pos_name, max_pos) in [
-        (&mut x, "X", (board.x_len() - boat.x_len())),
-        (&mut y, "Y", (board.y_len() - boat.y_len())),
-    ] {
-        println!("Please, provide a {pos_name} position in [0, {}]:", max_pos);
-        loop {
-            let mut input = String::new();
-
-            io::stdin()
-                .read_line(&mut input)
-                .expect("Failed to read line");
-
-            *pos = match input.trim().parse() {
-                Ok(num) => num,
-                Err(_) => {
-                    println!("  (provide a valid u32 value)");
-                    continue;
-                }
-            };
-
-            if *pos > max_pos {
-                println!("  (provide a value < {max_pos})");
-                continue;
-            }
-
-            break;
-        }
-    }
-
-    place_boat(board, boat, x, y);
-}
-*/
